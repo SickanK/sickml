@@ -1,29 +1,47 @@
-use rand::{self, Rng};
-use std::vec::Vec;
+pub mod math;
+pub mod math_operators;
+pub mod operators;
+
+use num_traits::{FromPrimitive, Num};
+
+use rand::{self, distributions::Standard, prelude::Distribution, Rng};
+use std::{
+    fmt,
+    fmt::{Debug, Display, Formatter},
+    vec::Vec,
+};
 
 // implement iterate
-// make sure that matrix only include numbers
-// make it generic
-// create a better structure
 
-pub struct Matrix {
-    matrix: Vec<Vec<f64>>,
+#[derive(Debug)]
+pub struct Matrix<T: FromPrimitive + Num> {
+    matrix: Vec<Vec<T>>,
     columns: usize,
     rows: usize,
 }
 
-impl Matrix {
-    pub fn new_empty(rows: usize, columns: usize) -> Result<Matrix, String> {
+// Print
+impl<T: FromPrimitive + Num> Display for Matrix<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.matrix)
+    }
+}
+
+impl<T: FromPrimitive + Num> Matrix<T> {
+    pub fn new_empty(rows: usize, columns: usize) -> Result<Matrix<T>, String> {
         if rows <= 0 && columns <= 0 {
             return Err(String::from("Matrix must have more than 1 row and column"));
         }
 
-        let mut matrix: Vec<Vec<f64>> = Vec::new();
+        let mut matrix: Vec<Vec<T>> = Vec::new();
 
         for _ in 0..rows {
-            let mut row: Vec<f64> = Vec::new();
+            let mut row: Vec<T> = Vec::new();
             for _ in 0..columns {
-                row.push(0.0);
+                row.push(FromPrimitive::from_u8(0).unwrap());
             }
             matrix.push(row);
         }
@@ -35,18 +53,22 @@ impl Matrix {
         })
     }
 
-    pub fn new_random(rows: usize, columns: usize) -> Result<Matrix, String> {
+    pub fn new_random(rows: usize, columns: usize) -> Result<Matrix<T>, String>
+    where
+        Standard: Distribution<T>,
+    {
         if rows <= 0 && columns <= 0 {
             return Err(String::from("Matrix must have more than 1 row and column"));
         }
 
-        let mut matrix: Vec<Vec<f64>> = Vec::new();
+        let mut matrix: Vec<Vec<T>> = Vec::new();
         let mut rng = rand::thread_rng();
 
         for _ in 0..rows {
-            let mut row: Vec<f64> = Vec::new();
+            let mut row: Vec<T> = Vec::new();
             for _ in 0..columns {
-                row.push(rng.gen());
+                let random_num: T = rng.gen::<T>();
+                row.push(random_num);
             }
             matrix.push(row);
         }
@@ -58,7 +80,7 @@ impl Matrix {
         })
     }
 
-    pub fn from(matrix: Vec<Vec<f64>>) -> Result<Matrix, String> {
+    pub fn from(matrix: Vec<Vec<T>>) -> Result<Matrix<T>, String> {
         let columns = matrix[0].len();
         let rows = matrix.len();
 
@@ -73,56 +95,5 @@ impl Matrix {
             matrix,
             columns,
         })
-    }
-}
-
-impl Matrix {
-    pub fn dim(&self) -> (usize, usize) {
-        (self.rows, self.columns)
-    }
-}
-
-impl Matrix {
-    pub fn mult(m1: Matrix, m2: Matrix) -> Result<Matrix, String> {
-        let m1_dim = m1.dim();
-        let m2_dim = m2.dim();
-
-        if m1_dim.1 != m2_dim.0 {
-            return Err(String::from(
-                "Number of columns in the first matrix must match number of rows in the second matrix",
-            ));
-        }
-
-        let Matrix = Matrix::new_empty(m1_dim.0, m2_dim.1);
-
-        for row in 0..m1_dim.0 {
-            for col in 0..m2_dim.1 {
-                // assign to matrix
-            }
-        }
-
-        Ok(m1)
-    }
-
-    pub fn hadamard(m1: Matrix, m2: Matrix) -> Result<Matrix, String> {
-        let m1_dim = m1.dim();
-        let m2_dim = m2.dim();
-
-        if m1_dim != m2_dim {
-            return Err(String::from("Both matrices must be identically shaped"));
-        }
-
-        Ok(m1)
-    }
-
-    pub fn dot(m1: Matrix, m2: Matrix) -> Result<usize, String> {
-        let m1_dim = m1.dim();
-        let m2_dim = m2.dim();
-
-        if m1_dim != m2_dim {
-            return Err(String::from("Both matrices must be identically shaped"));
-        }
-
-        Ok(0)
     }
 }
