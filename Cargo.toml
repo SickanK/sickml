@@ -1,11 +1,18 @@
 [package]
-name = "sick-ml"
+name = "sick_ml"
 version = "0.1.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[[bench]]
+name = "my_benchmark"
+harness = false
 
+[dev-dependencies]
+criterion = "0.3"
+
+[dependencies]
+num = "0.4.0"
 num-traits = "0.2.14"
 rand = "0.8.4"
