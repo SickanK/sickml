@@ -1,31 +1,21 @@
+pub mod m_matrix;
 pub mod matrix;
-use matrix::Matrix;
-use std::time::Instant;
+pub mod vector;
+use sick_ml::vector_mut_iterator;
+use vector::Vector;
 
 /*
  *
  * Basic matrix multiplication (release):
- * 10x10: 4.594µs
- * 100x100: 1.294321ms
- * 500x500: 228.77975ms
- * 1000x1000: 6.823345366s
- * 5000x5000: 1550.443132781s
+ * 10x10: 5.4700 µs
+ * 100x100: 1.3726 ms
+ * 500x500: 212.74 ms
+ * 1000x1000: 5.7036 s
+ * 5000x5000: 1550 s
  *
  */
 
 fn main() {
-    /*
-     * Matrix multiplication test
-     *
-        const SIZE: usize = 5000;
-
-        let multi_m1: Matrix<f64> = Matrix::new_random(SIZE, SIZE).unwrap();
-        let multi_m2: Matrix<f64> = Matrix::new_random(SIZE, SIZE).unwrap();
-
-        let now = Instant::now();
-        let _: Matrix<f64> = multi_m1 * multi_m2;
-        let new_now = Instant::now();
-
-        println!("{:?}", new_now.duration_since(now));
-    */
+    vector_mut_iterator();
+    println!("Hello world!");
 }
