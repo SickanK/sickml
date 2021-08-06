@@ -1,6 +1,6 @@
 use num_traits::{FromPrimitive, Num};
 
-use crate::matrix::Matrix;
+use crate::m_matrix::Matrix;
 use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 impl<T: Add<Output = T>> Add for Matrix<T>

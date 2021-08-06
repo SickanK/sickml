@@ -1,4 +1,4 @@
-use crate::matrix::Matrix;
+use crate::m_matrix::Matrix;
 use num_traits::{FromPrimitive, Num};
 use std::ops::AddAssign;
 
