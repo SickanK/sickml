@@ -1,6 +1,8 @@
 pub mod m_matrix;
 pub mod vector;
 
+use std::fmt::write;
+
 use m_matrix::Matrix;
 use vector::Vector;
 
@@ -24,4 +26,17 @@ pub fn vector_mut_iterator() {
     for s in test_vec.iter_mut() {
         *s = *s + *s;
     }
+}
+
+pub fn vector_enum_vs_idx() -> Vector<usize, 10000> {
+    let mut test_vec: Vector<usize, 10000> = Vector::new([2usize; 10000]);
+    test_vec = test_vec.scalar(2);
+    test_vec
+}
+
+pub fn fromprimitive_vs_uninit() -> Vector<usize, 10000> {
+    let mut test_vec: Vector<usize, 10000> = Vector::new([2usize; 10000]);
+    let test_vec_2: Vector<usize, 10000> = Vector::new([2usize; 10000]);
+    test_vec = test_vec + test_vec_2;
+    test_vec
 }

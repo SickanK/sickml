@@ -1,5 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use sick_ml::fromprimitive_vs_uninit;
 use sick_ml::old_matrix_mult;
+use sick_ml::vector_enum_vs_idx;
 use sick_ml::vector_iterator;
 
 pub fn matrix_mult_benchmark(c: &mut Criterion) {
@@ -30,5 +32,21 @@ pub fn iterator_benchmark(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, iterator_benchmark);
+// 8.3103 us - idx
+// 8.3871 us - enum
+// no diff
+pub fn enum_vs_idx_benchmark(c: &mut Criterion) {
+    c.bench_function("10000 enum vs idx", |b| b.iter(|| vector_enum_vs_idx()));
+}
+
+// 30.019 us - uninit
+// 32.251 us - fromprimitive
+// uninit faster
+pub fn fromprimitive_vs_uninit_benchmark(c: &mut Criterion) {
+    c.bench_function("10000 FromPrimitive vs uninit", |b| {
+        b.iter(|| fromprimitive_vs_uninit())
+    });
+}
+
+criterion_group!(benches, fromprimitive_vs_uninit_benchmark);
 criterion_main!(benches);

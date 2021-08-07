@@ -1,7 +1,6 @@
 pub mod m_matrix;
 pub mod matrix;
 pub mod vector;
-use sick_ml::vector_mut_iterator;
 use vector::Vector;
 
 /*
@@ -16,6 +15,6 @@ use vector::Vector;
  */
 
 fn main() {
-    vector_mut_iterator();
-    println!("Hello world!");
+    let v1: Vector<usize, 10> = Vector::new_random();
+    println!("{:?}", v1);
 }

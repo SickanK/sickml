@@ -1,12 +1,13 @@
 pub mod into_array;
 pub mod iterator;
 pub mod math;
-
-use std::ops::{Index, IndexMut};
+pub mod math_ops;
 
 use into_array::IntoArray;
+use num::FromPrimitive;
+use rand::{distributions::Standard, prelude::Distribution, Rng};
+use std::ops::{Index, IndexMut};
 
-// new random
 // new ones
 // new zeroes
 
@@ -19,6 +20,40 @@ impl<'a, T, const N: usize> Vector<T, N> {
     pub fn new(inner: impl IntoArray<T, N>) -> Self {
         Vector {
             inner: inner.into_array(),
+        }
+    }
+
+    pub fn new_random() -> Vector<T, N>
+    where
+        Standard: Distribution<T>,
+        T: FromPrimitive + Copy,
+    {
+        let mut inner: [T; N] = [FromPrimitive::from_u8(0).unwrap(); N];
+        let mut rng = rand::thread_rng();
+
+        for num in &mut inner {
+            let random_num: T = rng.gen::<T>();
+            *num = random_num;
+        }
+
+        Vector { inner }
+    }
+
+    pub fn new_zeroes() -> Vector<T, N>
+    where
+        T: FromPrimitive + Copy,
+    {
+        Vector {
+            inner: [FromPrimitive::from_u8(0).unwrap(); N],
+        }
+    }
+
+    pub fn new_ones() -> Vector<T, N>
+    where
+        T: FromPrimitive + Copy,
+    {
+        Vector {
+            inner: [FromPrimitive::from_u8(1).unwrap(); N],
         }
     }
 }

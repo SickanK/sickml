@@ -1,5 +1,5 @@
 use crate::vector::Vector;
-use std::{iter::FromIterator, iter::FromIterator, mem::MaybeUninit, mem::MaybeUninit};
+use std::{iter::FromIterator, mem::MaybeUninit};
 
 impl<'a, T, const N: usize> Vector<T, N> {
     pub fn iter(&'a self) -> Iter<'a, T, N> {
