@@ -1,6 +1,7 @@
 pub mod m_matrix;
 pub mod matrix;
 pub mod vector;
+use matrix::Matrix;
 use vector::Vector;
 
 /*
@@ -15,6 +16,6 @@ use vector::Vector;
  */
 
 fn main() {
-    let v1: Vector<usize, 10> = Vector::new_random();
-    println!("{:?}", v1);
+    let mut matrix: Matrix<usize, 2, 2> = Matrix::new([vec![1, 2], vec![3, 4]]);
+    println!("{:?}", matrix);
 }

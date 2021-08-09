@@ -1,0 +1,79 @@
+use crate::matrix::VectorWrapper;
+use crate::vector::Vector;
+use core::fmt;
+
+pub trait IntoVectorWrapper<T, const N: usize, const M: usize> {
+    fn into_vector_wrapper(self) -> [Vector<T, M>; N];
+}
+
+impl<T, const N: usize, const M: usize> IntoVectorWrapper<T, N, M> for [Vector<T, M>; N] {
+    fn into_vector_wrapper(self) -> [Vector<T, M>; N] {
+        self
+    }
+}
+
+impl<T, const N: usize, const M: usize> IntoVectorWrapper<T, N, M> for Vec<Vec<T>>
+where
+    T: fmt::Debug,
+{
+    fn into_vector_wrapper(self) -> [Vector<T, M>; N] {
+        let array_of_vectors: [Vector<T, M>; N] =
+            self.into_iter().map(|f: Vec<T>| Vector::new(f)).collect();
+
+        array_of_vectors
+    }
+}
+
+impl<T, const N: usize, const M: usize> IntoVectorWrapper<T, N, M> for Vec<[T; M]>
+where
+    T: fmt::Debug,
+{
+    fn into_vector_wrapper(self) -> [Vector<T, M>; N] {
+        let array_of_vectors: [Vector<T, M>; N] =
+            self.into_iter().map(|f: [T; M]| Vector::new(f)).collect();
+
+        array_of_vectors
+    }
+}
+
+impl<T, const N: usize, const M: usize> IntoVectorWrapper<T, N, M> for [[T; M]; N]
+where
+    T: fmt::Debug + Copy,
+    [T; M]: Copy,
+{
+    fn into_vector_wrapper(self) -> [Vector<T, M>; N]
+where {
+        let array_of_vectors: [Vector<T, M>; N] =
+            self.iter().map(|f: &[T; M]| Vector::new(*f)).collect();
+
+        array_of_vectors
+    }
+}
+
+impl<T, const N: usize, const M: usize> IntoVectorWrapper<T, N, M> for [Vec<T>; N]
+where
+    T: fmt::Debug + Copy,
+    [T; M]: Copy,
+{
+    fn into_vector_wrapper(self) -> [Vector<T, M>; N]
+where {
+        let array_of_vectors: [Vector<T, M>; N] = [Vector::new([FromPrimitive::fr; M]); N];
+
+        self.iter()
+            .map(|f: &Vec<T>| Vector::new(f.clone()))
+            .collect();
+
+        array_of_vectors
+    }
+}
+
+impl<T, const N: usize, const M: usize> IntoVectorWrapper<T, N, M> for Vec<Vector<T, M>>
+where
+    T: fmt::Debug,
+{
+    fn into_vector_wrapper(self) -> [Vector<T, M>; N] {
+        let array_of_vectors: [Vector<T, M>; N] = self.into_iter().collect();
+
+        array_of_vectors
+    }
+}

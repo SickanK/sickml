@@ -11,7 +11,7 @@ use std::ops::{Index, IndexMut};
 // new ones
 // new zeroes
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Vector<T, const N: usize> {
     inner: [T; N],
 }

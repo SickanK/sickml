@@ -1,6 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use sick_ml::fromprimitive_vs_uninit;
 use sick_ml::old_matrix_mult;
+use sick_ml::sum_test;
+use sick_ml::vector::Vector;
 use sick_ml::vector_enum_vs_idx;
 use sick_ml::vector_iterator;
 
@@ -48,5 +50,16 @@ pub fn fromprimitive_vs_uninit_benchmark(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, fromprimitive_vs_uninit_benchmark);
+// 1.5440 ns
+fn sum_tst(c: &mut Criterion) {
+    c.bench_function("vector addition", |b| {
+        b.iter(|| {
+            let vec1 = Vector::<i32, 3>::new([2, 3, 4]);
+            let vec2 = Vector::<i32, 3>::new([2, 3, 4]);
+            criterion::black_box(vec1 + vec2);
+        })
+    });
+}
+
+criterion_group!(benches, sum_tst);
 criterion_main!(benches);

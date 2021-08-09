@@ -40,3 +40,10 @@ pub fn fromprimitive_vs_uninit() -> Vector<usize, 10000> {
     test_vec = test_vec + test_vec_2;
     test_vec
 }
+
+pub fn sum_test() -> Vector<i32, 3> {
+    let vec1: Vector<i32, 3> = Vector::new([2, 3, 4]);
+    let vec2: Vector<i32, 3> = Vector::new([2, 3, 4]);
+    let vec3 = vec1 + vec2;
+    vec3
+}
