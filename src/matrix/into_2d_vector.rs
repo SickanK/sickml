@@ -2,23 +2,23 @@ use crate::vector::Vector;
 use core::fmt;
 use num::FromPrimitive;
 
-pub trait Into2dVector<T, const N: usize, const M: usize> {
-    fn into_2d_vector(self) -> [Vector<T, M>; N];
+pub trait Into2dVector<T, const M: usize, const N: usize> {
+    fn into_2d_vector(self) -> [Vector<T, N>; M];
 }
 
-impl<T, const N: usize, const M: usize> Into2dVector<T, N, M> for [Vector<T, M>; N] {
-    fn into_2d_vector(self) -> [Vector<T, M>; N] {
+impl<T, const M: usize, const N: usize> Into2dVector<T, M, N> for [Vector<T, N>; M] {
+    fn into_2d_vector(self) -> [Vector<T, N>; M] {
         self
     }
 }
 
-impl<T, const N: usize, const M: usize> Into2dVector<T, N, M> for Vec<Vec<T>>
+impl<T, const M: usize, const N: usize> Into2dVector<T, M, N> for Vec<Vec<T>>
 where
     T: fmt::Debug + FromPrimitive + Copy,
 {
-    fn into_2d_vector(self) -> [Vector<T, M>; N] {
-        let mut array_of_vectors: [Vector<T, M>; N] =
-            [Vector::new([FromPrimitive::from_u8(0).unwrap(); M]); N];
+    fn into_2d_vector(self) -> [Vector<T, N>; M] {
+        let mut array_of_vectors: [Vector<T, N>; M] =
+            [Vector::new([FromPrimitive::from_u8(0).unwrap(); N]); M];
 
         for (idx, container) in array_of_vectors.iter_mut().enumerate() {
             *container = Vector::new(self[idx].clone());
@@ -28,13 +28,13 @@ where
     }
 }
 
-impl<T, const N: usize, const M: usize> Into2dVector<T, N, M> for Vec<[T; M]>
+impl<T, const M: usize, const N: usize> Into2dVector<T, M, N> for Vec<[T; N]>
 where
     T: fmt::Debug + FromPrimitive + Copy,
 {
-    fn into_2d_vector(self) -> [Vector<T, M>; N] {
-        let mut array_of_vectors: [Vector<T, M>; N] =
-            [Vector::new([FromPrimitive::from_u8(0).unwrap(); M]); N];
+    fn into_2d_vector(self) -> [Vector<T, N>; M] {
+        let mut array_of_vectors: [Vector<T, N>; M] =
+            [Vector::new([FromPrimitive::from_u8(0).unwrap(); N]); M];
 
         for (idx, container) in array_of_vectors.iter_mut().enumerate() {
             *container = Vector::new(self[idx]);
@@ -44,14 +44,14 @@ where
     }
 }
 
-impl<T, const N: usize, const M: usize> Into2dVector<T, N, M> for [[T; M]; N]
+impl<T, const M: usize, const N: usize> Into2dVector<T, M, N> for [[T; N]; M]
 where
     T: fmt::Debug + FromPrimitive + Copy,
 {
-    fn into_2d_vector(self) -> [Vector<T, M>; N]
+    fn into_2d_vector(self) -> [Vector<T, N>; M]
 where {
-        let mut array_of_vectors: [Vector<T, M>; N] =
-            [Vector::new([FromPrimitive::from_u8(0).unwrap(); M]); N];
+        let mut array_of_vectors: [Vector<T, N>; M] =
+            [Vector::new([FromPrimitive::from_u8(0).unwrap(); N]); M];
 
         for (idx, container) in array_of_vectors.iter_mut().enumerate() {
             *container = Vector::new(self[idx]);
@@ -61,13 +61,13 @@ where {
     }
 }
 
-impl<T, const N: usize, const M: usize> Into2dVector<T, N, M> for [Vec<T>; N]
+impl<T, const M: usize, const N: usize> Into2dVector<T, M, N> for [Vec<T>; M]
 where
     T: fmt::Debug + FromPrimitive + Copy,
 {
-    fn into_2d_vector(self) -> [Vector<T, M>; N] {
-        let mut array_of_vectors: [Vector<T, M>; N] =
-            [Vector::new([FromPrimitive::from_u8(0).unwrap(); M]); N];
+    fn into_2d_vector(self) -> [Vector<T, N>; M] {
+        let mut array_of_vectors: [Vector<T, N>; M] =
+            [Vector::new([FromPrimitive::from_u8(0).unwrap(); N]); M];
 
         for (idx, vec) in array_of_vectors.iter_mut().enumerate() {
             *vec = Vector::new(self[idx].clone());
@@ -77,13 +77,13 @@ where
     }
 }
 
-impl<T, const N: usize, const M: usize> Into2dVector<T, N, M> for Vec<Vector<T, M>>
+impl<T, const M: usize, const N: usize> Into2dVector<T, M, N> for Vec<Vector<T, N>>
 where
     T: fmt::Debug + FromPrimitive + Copy,
 {
-    fn into_2d_vector(self) -> [Vector<T, M>; N] {
-        let mut array_of_vectors: [Vector<T, M>; N] =
-            [Vector::new([FromPrimitive::from_u8(0).unwrap(); M]); N];
+    fn into_2d_vector(self) -> [Vector<T, N>; M] {
+        let mut array_of_vectors: [Vector<T, N>; M] =
+            [Vector::new([FromPrimitive::from_u8(0).unwrap(); N]); M];
 
         for (idx, container) in array_of_vectors.iter_mut().enumerate() {
             *container = self[idx];

@@ -1,25 +1,55 @@
-pub mod into_array;
+pub mod into_vector_data;
 pub mod iterator;
 pub mod math;
-pub mod math_ops;
-
-use into_array::IntoArray;
-use num::FromPrimitive;
-use rand::{distributions::Standard, prelude::Distribution, Rng};
 use std::ops::{Index, IndexMut};
 
-// new ones
-// new zeroes
+use into_vector_data::IntoVectorData;
 
-#[derive(Copy, Clone, Debug)]
+use num::FromPrimitive;
+use rand::Rng;
+use rand::{distributions::Standard, prelude::Distribution};
+
+#[derive(Debug)]
 pub struct Vector<T, const N: usize> {
-    inner: [T; N],
+    stack_data: Option<[T; N]>,
+    heap_data: Option<Vec<T>>,
+    stack_limit: usize,
 }
 
-impl<'a, T, const N: usize> Vector<T, N> {
-    pub fn new(inner: impl IntoArray<T, N>) -> Self {
-        Vector {
-            inner: inner.into_array(),
+impl<T, const N: usize> Vector<T, N>
+where
+    T: FromPrimitive,
+{
+    pub fn new(data: impl IntoVectorData<T, N>) -> Self {
+        let limit = 1500;
+        if N < limit {
+            Vector {
+                stack_data: None,
+                heap_data: Some(data.into_vec()),
+                stack_limit: limit,
+            }
+        } else {
+            Vector {
+                stack_data: Some(data.into_array()),
+                heap_data: None,
+                stack_limit: limit,
+            }
+        }
+    }
+
+    pub fn new_limit(data: impl IntoVectorData<T, N>, limit: usize) -> Self {
+        if N < limit {
+            Vector {
+                stack_data: None,
+                heap_data: Some(data.into_vec()),
+                stack_limit: limit,
+            }
+        } else {
+            Vector {
+                stack_data: Some(data.into_array()),
+                heap_data: None,
+                stack_limit: limit,
+            }
         }
     }
 
@@ -28,32 +58,69 @@ impl<'a, T, const N: usize> Vector<T, N> {
         Standard: Distribution<T>,
         T: FromPrimitive + Copy,
     {
-        let mut inner: [T; N] = [FromPrimitive::from_u8(0).unwrap(); N];
         let mut rng = rand::thread_rng();
+        let limit = 1500;
+        if N < limit {
+            let mut stack_data: [T; N] = [FromPrimitive::from_u8(0).unwrap(); N];
 
-        for num in &mut inner {
-            let random_num: T = rng.gen::<T>();
-            *num = random_num;
+            for num in &mut stack_data {
+                let random_num: T = rng.gen::<T>();
+                *num = random_num;
+            }
+
+            Vector {
+                stack_data: Some(stack_data),
+                heap_data: None,
+                stack_limit: limit,
+            }
+        } else {
+            let mut heap_data: Vec<T> = Vec::with_capacity(N);
+
+            for _ in 0..N {
+                let random_num: T = rng.gen::<T>();
+                heap_data.push(random_num)
+            }
+
+            Vector {
+                stack_data: None,
+                heap_data: Some(heap_data),
+                stack_limit: limit,
+            }
         }
-
-        Vector { inner }
     }
 
-    pub fn new_zeroes() -> Vector<T, N>
+    pub fn new_random_limit(limit: usize) -> Vector<T, N>
     where
+        Standard: Distribution<T>,
         T: FromPrimitive + Copy,
     {
-        Vector {
-            inner: [FromPrimitive::from_u8(0).unwrap(); N],
-        }
-    }
+        let mut rng = rand::thread_rng();
+        if N < limit {
+            let mut stack_data: [T; N] = [FromPrimitive::from_u8(0).unwrap(); N];
 
-    pub fn new_ones() -> Vector<T, N>
-    where
-        T: FromPrimitive + Copy,
-    {
-        Vector {
-            inner: [FromPrimitive::from_u8(1).unwrap(); N],
+            for num in &mut stack_data {
+                let random_num: T = rng.gen::<T>();
+                *num = random_num;
+            }
+
+            Vector {
+                stack_data: Some(stack_data),
+                heap_data: None,
+                stack_limit: limit,
+            }
+        } else {
+            let mut heap_data: Vec<T> = Vec::with_capacity(N);
+
+            for _ in 0..N {
+                let random_num: T = rng.gen::<T>();
+                heap_data.push(random_num)
+            }
+
+            Vector {
+                stack_data: None,
+                heap_data: Some(heap_data),
+                stack_limit: limit,
+            }
         }
     }
 }
@@ -61,13 +128,32 @@ impl<'a, T, const N: usize> Vector<T, N> {
 impl<T, const N: usize> Index<usize> for Vector<T, N> {
     type Output = T;
 
-    fn index(&self, idx: usize) -> &Self::Output {
-        &self.inner[idx]
+    fn index(&self, index: usize) -> &Self::Output {
+        if let Some(stack_data) = &self.stack_data {
+            return &stack_data[index];
+        }
+
+        if let Some(heap_data) = &self.heap_data {
+            return &heap_data[index];
+        }
+
+        unreachable!()
     }
 }
 
-impl<T, const N: usize> IndexMut<usize> for Vector<T, N> {
+impl<T, const N: usize> IndexMut<usize> for Vector<T, N>
+where
+    T: FromPrimitive,
+{
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        &mut self.inner[index]
+        if let Some(stack_data) = &mut self.stack_data {
+            return &mut stack_data[index];
+        }
+
+        if let Some(heap_data) = &mut self.heap_data {
+            return &mut heap_data[index];
+        }
+
+        unreachable!()
     }
 }

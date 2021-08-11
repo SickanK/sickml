@@ -1,7 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use sick_ml::fromprimitive_vs_uninit;
+use sick_ml::new_matrix_mult;
 use sick_ml::old_matrix_mult;
-use sick_ml::sum_test;
 use sick_ml::vector::Vector;
 use sick_ml::vector_enum_vs_idx;
 use sick_ml::vector_iterator;
@@ -21,6 +21,18 @@ pub fn matrix_mult_benchmark(c: &mut Criterion) {
 
     c.bench_function("1000 matrix_mult", |b| {
         b.iter(|| old_matrix_mult(black_box(1000)))
+    });
+}
+
+pub fn new_matrix_mult_benchmark(c: &mut Criterion) {
+    /*
+    c.bench_function("10 matrix_mult", |b| b.iter(|| new_matrix_mult::<10>()));
+
+    c.bench_function("100 matrix_mult", |b| b.iter(|| new_matrix_mult::<100>()));
+    */
+
+    c.bench_function("500 matrix_mult", |b| {
+        b.iter(|| new_matrix_mult::<500, 300>())
     });
 }
 
@@ -61,5 +73,9 @@ fn sum_tst(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, sum_tst);
+criterion_group! {
+    name = benches;
+    config = Criterion::default().sample_size(100);  // changing e.g, sampling size
+    targets = new_matrix_mult_benchmark
+}
 criterion_main!(benches);

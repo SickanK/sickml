@@ -4,43 +4,43 @@ use crate::vector::Vector;
 
 use super::Matrix;
 
-impl<'a, T, const N: usize, const M: usize> Matrix<T, N, M> {
-    pub fn into_iter(self) -> IntoIter<T, N, M> {
+impl<'a, T, const M: usize, const N: usize> Matrix<T, M, N> {
+    pub fn into_iter(self) -> IntoIter<T, M, N> {
         IntoIter {
             data: self,
             current: 0,
-            end: N,
+            end: M,
         }
     }
 
-    pub fn iter(&'a self) -> Iter<'a, T, N, M> {
+    pub fn iter(&'a self) -> Iter<T, M, N> {
         Iter {
             data: &self.inner,
             current: 0,
-            end: N,
+            end: M,
         }
     }
 
-    pub fn iter_mut(&'a mut self) -> IterMut<'a, T, N, M> {
+    pub fn iter_mut(&'a mut self) -> IterMut<T, M, N> {
         IterMut {
             data: &mut self.inner,
             current: 0,
-            end: N,
+            end: M,
         }
     }
 }
 
-pub struct IntoIter<T, const N: usize, const M: usize> {
-    data: Matrix<T, N, M>,
+pub struct IntoIter<T, const M: usize, const N: usize> {
+    data: Matrix<T, M, N>,
     current: usize,
     end: usize,
 }
 
-impl<T, const N: usize, const M: usize> Iterator for IntoIter<T, N, M>
+impl<T, const M: usize, const N: usize> Iterator for IntoIter<T, M, N>
 where
     T: Copy,
 {
-    type Item = Vector<T, M>;
+    type Item = Vector<T, N>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -54,49 +54,49 @@ where
     }
 }
 
-impl<T, const N: usize, const M: usize> IntoIterator for Matrix<T, N, M>
+impl<'a, T, const M: usize, const N: usize> IntoIterator for Matrix<T, M, N>
 where
     T: Copy,
 {
-    type Item = Vector<T, M>;
-    type IntoIter = IntoIter<T, N, M>;
+    type Item = Vector<T, N>;
+    type IntoIter = IntoIter<T, M, N>;
 
     fn into_iter(self) -> Self::IntoIter {
         IntoIter {
             data: self,
             current: 0,
-            end: N,
+            end: M,
         }
     }
 }
 
-pub struct Iter<'a, T, const N: usize, const M: usize> {
-    data: &'a [Vector<T, M>; N],
+pub struct Iter<'a, T, const M: usize, const N: usize> {
+    data: &'a [Vector<T, N>; M],
     current: usize,
     end: usize,
 }
 
-impl<'a, T, const N: usize, const M: usize> IntoIterator for &'a Matrix<T, N, M>
+impl<'a, T, const M: usize, const N: usize> IntoIterator for &'a Matrix<T, M, N>
 where
     T: Copy,
 {
-    type Item = &'a Vector<T, M>;
-    type IntoIter = Iter<'a, T, N, M>;
+    type Item = &'a Vector<T, N>;
+    type IntoIter = Iter<'a, T, M, N>;
 
     fn into_iter(self) -> Self::IntoIter {
         Iter {
             data: &self.inner,
             current: 0,
-            end: N,
+            end: M,
         }
     }
 }
 
-impl<'a, T, const N: usize, const M: usize> Iterator for Iter<'a, T, N, M>
+impl<'a, T, const M: usize, const N: usize> Iterator for Iter<'a, T, M, N>
 where
     T: Copy,
 {
-    type Item = &'a Vector<T, M>;
+    type Item = &'a Vector<T, N>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -110,33 +110,33 @@ where
     }
 }
 
-pub struct IterMut<'a, T, const N: usize, const M: usize> {
-    data: &'a mut [Vector<T, M>; N],
+pub struct IterMut<'a, T, const M: usize, const N: usize> {
+    data: &'a mut [Vector<T, N>; M],
     current: usize,
     end: usize,
 }
 
-impl<'a, T, const N: usize, const M: usize> IntoIterator for &'a mut Matrix<T, N, M>
+impl<'a, T, const M: usize, const N: usize> IntoIterator for &'a mut Matrix<T, M, N>
 where
     T: Copy,
 {
-    type Item = &'a mut Vector<T, M>;
-    type IntoIter = IterMut<'a, T, N, M>;
+    type Item = &'a mut Vector<T, N>;
+    type IntoIter = IterMut<'a, T, M, N>;
 
     fn into_iter(self) -> Self::IntoIter {
         IterMut {
             data: &mut self.inner,
             current: 0,
-            end: N,
+            end: M,
         }
     }
 }
 
-impl<'a, T, const N: usize, const M: usize> Iterator for IterMut<'a, T, N, M>
+impl<'a, T, const M: usize, const N: usize> Iterator for IterMut<'a, T, M, N>
 where
     T: Copy,
 {
-    type Item = &'a mut Vector<T, M>;
+    type Item = &'a mut Vector<T, N>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -151,9 +151,9 @@ where
     }
 }
 
-impl<T, const N: usize, const M: usize> FromIterator<Vector<T, M>> for Matrix<T, N, M> {
-    fn from_iter<I: IntoIterator<Item = Vector<T, M>>>(iter: I) -> Matrix<T, N, M> {
-        let mut uninit_collector: [MaybeUninit<Vector<T, M>>; N] =
+impl<T, const M: usize, const N: usize> FromIterator<Vector<T, N>> for Matrix<T, M, N> {
+    fn from_iter<I: IntoIterator<Item = Vector<T, N>>>(iter: I) -> Matrix<T, M, N> {
+        let mut uninit_collector: [MaybeUninit<Vector<T, N>>; M] =
             unsafe { MaybeUninit::uninit().assume_init() };
 
         let mut idx = 0;
@@ -163,8 +163,7 @@ impl<T, const N: usize, const M: usize> FromIterator<Vector<T, M>> for Matrix<T,
         }
 
         Matrix {
-            inner: unsafe { uninit_collector.as_ptr().cast::<[Vector<T, M>; N]>().read() },
-            transposed: None,
+            inner: unsafe { uninit_collector.as_ptr().cast::<[Vector<T, N>; M]>().read() },
         }
     }
 }

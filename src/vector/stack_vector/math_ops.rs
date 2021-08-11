@@ -2,9 +2,9 @@ use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 use num::FromPrimitive;
 
-use crate::vector::Vector;
+use super::StackVector;
 
-impl<T, const N: usize> Add for Vector<T, N>
+impl<T, const N: usize> Add for StackVector<T, N>
 where
     T: Copy + Add<Output = T> + FromPrimitive,
 {
@@ -15,7 +15,7 @@ where
     }
 }
 
-impl<T, const N: usize> AddAssign for Vector<T, N>
+impl<T, const N: usize> AddAssign for StackVector<T, N>
 where
     T: Copy + AddAssign,
 {
@@ -24,7 +24,7 @@ where
     }
 }
 
-impl<T, const N: usize> Sub for Vector<T, N>
+impl<T, const N: usize> Sub for StackVector<T, N>
 where
     T: Copy + Sub<Output = T>,
 {
@@ -35,7 +35,7 @@ where
     }
 }
 
-impl<T, const N: usize> SubAssign for Vector<T, N>
+impl<T, const N: usize> SubAssign for StackVector<T, N>
 where
     T: Copy + SubAssign,
 {
@@ -44,7 +44,7 @@ where
     }
 }
 
-impl<T, const N: usize> Mul for Vector<T, N>
+impl<T, const N: usize> Mul for StackVector<T, N>
 where
     T: Copy + Mul<Output = T>,
 {
@@ -55,7 +55,7 @@ where
     }
 }
 
-impl<T, const N: usize> MulAssign for Vector<T, N>
+impl<T, const N: usize> MulAssign for StackVector<T, N>
 where
     T: Copy + MulAssign,
 {

@@ -1,16 +1,23 @@
+/*
+
 pub mod m_matrix;
+pub mod matrix;
 pub mod vector;
 
-use std::fmt::write;
-
-use m_matrix::Matrix;
 use vector::Vector;
 
 pub fn old_matrix_mult(size: usize) {
-    let multi_m1: Matrix<f64> = Matrix::new_random(size, size).unwrap();
-    let multi_m2: Matrix<f64> = Matrix::new_random(size, size).unwrap();
+    let multi_m1: m_matrix::Matrix<f64> = m_matrix::Matrix::new_random(size, size).unwrap();
+    let multi_m2: m_matrix::Matrix<f64> = m_matrix::Matrix::new_random(size, size).unwrap();
 
-    let _: Matrix<f64> = multi_m1 * multi_m2;
+    let _: m_matrix::Matrix<f64> = multi_m1 * multi_m2;
+}
+
+pub fn new_matrix_mult<const T: usize, const U: usize>() {
+    let multi_m1: matrix::Matrix<f64, T, U> = matrix::Matrix::new_random_boxed();
+    let multi_m2: matrix::Matrix<f64, U, T> = matrix::Matrix::new_random_boxed();
+
+    let _: matrix::Matrix<f64, T, T> = multi_m1.mult(&multi_m2);
 }
 
 pub fn vector_iterator() {
@@ -47,3 +54,4 @@ pub fn sum_test() -> Vector<i32, 3> {
     let vec3 = vec1 + vec2;
     vec3
 }
+*/
