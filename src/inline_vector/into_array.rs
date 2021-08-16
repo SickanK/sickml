@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 pub trait IntoArray<T, const N: usize> {
     fn into_array(self) -> [T; N];
 }

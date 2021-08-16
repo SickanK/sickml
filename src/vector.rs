@@ -1,159 +1,95 @@
-pub mod into_vector_data;
-pub mod iterator;
-pub mod math;
 use std::ops::{Index, IndexMut};
 
-use into_vector_data::IntoVectorData;
-
-use num::FromPrimitive;
-use rand::Rng;
 use rand::{distributions::Standard, prelude::Distribution};
 
-#[derive(Debug)]
-pub struct Vector<T, const N: usize> {
-    stack_data: Option<[T; N]>,
-    heap_data: Option<Vec<T>>,
-    stack_limit: usize,
+use crate::{
+    heap_vector::{into_vec::IntoVec, HeapVector},
+    inline_vector::{into_array::IntoArray, InlineVector},
+};
+
+pub mod iterator;
+pub mod math;
+pub mod math_ops;
+
+#[derive(Debug, Clone)]
+pub enum Vector<T, const N: usize> {
+    Inline(InlineVector<T, N>),
+    Heap(HeapVector<T, N>),
 }
 
 impl<T, const N: usize> Vector<T, N>
 where
-    T: FromPrimitive,
+    T: Default,
 {
-    pub fn new(data: impl IntoVectorData<T, N>) -> Self {
-        let limit = 1500;
-        if N < limit {
-            Vector {
-                stack_data: None,
-                heap_data: Some(data.into_vec()),
-                stack_limit: limit,
-            }
+    pub fn new(data: impl IntoArray<T, N> + IntoVec<T, N>) -> Self {
+        if N < 5001 {
+            Self::Inline(InlineVector::new(data))
         } else {
-            Vector {
-                stack_data: Some(data.into_array()),
-                heap_data: None,
-                stack_limit: limit,
-            }
+            Self::Heap(HeapVector::new(data))
         }
     }
 
-    pub fn new_limit(data: impl IntoVectorData<T, N>, limit: usize) -> Self {
-        if N < limit {
-            Vector {
-                stack_data: None,
-                heap_data: Some(data.into_vec()),
-                stack_limit: limit,
-            }
+    pub fn new_random() -> Self
+    where
+        T: Copy,
+        Standard: Distribution<T>,
+    {
+        if N < 5001 {
+            Self::Inline(InlineVector::new_random())
         } else {
-            Vector {
-                stack_data: Some(data.into_array()),
-                heap_data: None,
-                stack_limit: limit,
-            }
+            Self::Heap(HeapVector::new_random())
         }
     }
 
-    pub fn new_random() -> Vector<T, N>
+    pub fn inline(data: impl IntoArray<T, N>) -> Self {
+        Self::Inline(InlineVector::new(data))
+    }
+
+    pub fn inline_random() -> Self
+    where
+        T: Copy,
+        Standard: Distribution<T>,
+    {
+        Self::Inline(InlineVector::new_random())
+    }
+
+    pub fn heap(data: impl IntoVec<T, N>) -> Self {
+        Self::Heap(HeapVector::new(data))
+    }
+
+    pub fn heap_random() -> Self
     where
         Standard: Distribution<T>,
-        T: FromPrimitive + Copy,
     {
-        let mut rng = rand::thread_rng();
-        let limit = 1500;
-        if N < limit {
-            let mut stack_data: [T; N] = [FromPrimitive::from_u8(0).unwrap(); N];
-
-            for num in &mut stack_data {
-                let random_num: T = rng.gen::<T>();
-                *num = random_num;
-            }
-
-            Vector {
-                stack_data: Some(stack_data),
-                heap_data: None,
-                stack_limit: limit,
-            }
-        } else {
-            let mut heap_data: Vec<T> = Vec::with_capacity(N);
-
-            for _ in 0..N {
-                let random_num: T = rng.gen::<T>();
-                heap_data.push(random_num)
-            }
-
-            Vector {
-                stack_data: None,
-                heap_data: Some(heap_data),
-                stack_limit: limit,
-            }
-        }
+        Self::Heap(HeapVector::new_random())
     }
+}
 
-    pub fn new_random_limit(limit: usize) -> Vector<T, N>
-    where
-        Standard: Distribution<T>,
-        T: FromPrimitive + Copy,
-    {
-        let mut rng = rand::thread_rng();
-        if N < limit {
-            let mut stack_data: [T; N] = [FromPrimitive::from_u8(0).unwrap(); N];
-
-            for num in &mut stack_data {
-                let random_num: T = rng.gen::<T>();
-                *num = random_num;
-            }
-
-            Vector {
-                stack_data: Some(stack_data),
-                heap_data: None,
-                stack_limit: limit,
-            }
-        } else {
-            let mut heap_data: Vec<T> = Vec::with_capacity(N);
-
-            for _ in 0..N {
-                let random_num: T = rng.gen::<T>();
-                heap_data.push(random_num)
-            }
-
-            Vector {
-                stack_data: None,
-                heap_data: Some(heap_data),
-                stack_limit: limit,
-            }
-        }
+impl<T, const N: usize> Default for Vector<T, N>
+where
+    T: Default + Copy,
+{
+    fn default() -> Self {
+        Self::Inline(InlineVector::default())
     }
 }
 
 impl<T, const N: usize> Index<usize> for Vector<T, N> {
     type Output = T;
 
-    fn index(&self, index: usize) -> &Self::Output {
-        if let Some(stack_data) = &self.stack_data {
-            return &stack_data[index];
+    fn index(&self, idx: usize) -> &Self::Output {
+        match self {
+            Self::Inline(inline_vector) => &inline_vector[idx],
+            Self::Heap(heap_vector) => &heap_vector[idx],
         }
-
-        if let Some(heap_data) = &self.heap_data {
-            return &heap_data[index];
-        }
-
-        unreachable!()
     }
 }
 
-impl<T, const N: usize> IndexMut<usize> for Vector<T, N>
-where
-    T: FromPrimitive,
-{
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        if let Some(stack_data) = &mut self.stack_data {
-            return &mut stack_data[index];
+impl<T, const N: usize> IndexMut<usize> for Vector<T, N> {
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        match self {
+            Self::Inline(inline_vector) => &mut inline_vector[idx],
+            Self::Heap(heap_vector) => &mut heap_vector[idx],
         }
-
-        if let Some(heap_data) = &mut self.heap_data {
-            return &mut heap_data[index];
-        }
-
-        unreachable!()
     }
 }

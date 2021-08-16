@@ -1,3 +1,9 @@
+use num::integer::Roots;
+use std::{
+    fmt::Debug,
+    ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign},
+};
+
 use num::{FromPrimitive, ToPrimitive};
 
 use crate::{math_vector::MathVector, matrix::Matrix};
@@ -6,12 +12,22 @@ use super::HeapVector;
 
 impl<T, const N: usize> MathVector<T, N> for HeapVector<T, N>
 where
-    T: Default + ToPrimitive,
+    T: Default
+        + Copy
+        + FromPrimitive
+        + ToPrimitive
+        + Mul<Output = T>
+        + MulAssign
+        + Add<Output = T>
+        + AddAssign
+        + Sub<Output = T>
+        + SubAssign
+        + Debug,
 {
     fn scalar(&self, scalar: isize) -> Self {
         let mut scaled_vec: Vec<T> = Vec::with_capacity(N);
 
-        for num in self.data {
+        for num in self.data.iter() {
             scaled_vec.push(*num * FromPrimitive::from_isize(scalar).expect("Expected isize"));
         }
 
@@ -19,7 +35,7 @@ where
     }
 
     fn scalar_mut(&mut self, scalar: isize) {
-        for num in self.data.scalar.iter_mut() {
+        for num in self.data.iter_mut() {
             *num *= FromPrimitive::from_isize(scalar).expect("Expected isize")
         }
     }
@@ -115,7 +131,7 @@ where
         &self,
         rhs: impl MathVector<T, N> + std::ops::Index<usize, Output = T>,
     ) -> Matrix<T, M, N> {
-        let mut tensor_product: Matrix<T, M, N> = Matrix::new([Vec::with_capacity(N); M]);
+        let mut tensor_product: Matrix<T, M, N> = Matrix::default();
 
         for (row_idx, row) in tensor_product.iter_mut().enumerate() {
             for (col_idx, col) in row.iter_mut().enumerate() {

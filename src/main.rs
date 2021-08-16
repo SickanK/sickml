@@ -1,5 +1,7 @@
-pub mod m_matrix;
-//pub mod matrix;
+pub mod heap_vector;
+pub mod inline_vector;
+pub mod math_vector;
+pub mod matrix;
 pub mod vector;
 
 /*

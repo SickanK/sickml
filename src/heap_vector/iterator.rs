@@ -155,12 +155,10 @@ where
     T: Default + Copy,
 {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> HeapVector<T, N> {
-        let mut collector: [T; N] = [T::default(); N];
+        let mut collector: Vec<T> = Vec::with_capacity(N);
 
-        let mut idx = 0;
         for item in iter {
-            collector[idx] = item;
-            idx += 1;
+            collector.push(item);
         }
 
         HeapVector { data: collector }

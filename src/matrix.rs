@@ -5,7 +5,7 @@ pub mod transpose;
 
 use std::fmt::Debug;
 
-use crate::vector::Vector;
+use crate::{inline_vector::into_array::IntoArray, vector::Vector};
 use into_2d_vector::Into2dVector;
 use num::FromPrimitive;
 use rand::{distributions::Standard, prelude::Distribution};
@@ -24,35 +24,28 @@ impl<T, const M: usize, const N: usize> Matrix<T, M, N> {
 
     pub fn new_random() -> Matrix<T, M, N>
     where
-        T: FromPrimitive + Debug + Copy,
+        T: Default + FromPrimitive + Debug + Copy,
         Standard: Distribution<T>,
     {
-        let mut random_matrix_data: [Vector<T, N>; M] =
-            [Vector::new([FromPrimitive::from_u8(0).unwrap(); N]); M];
+        let mut random_matrix_data: Vec<Vector<T, N>> = Vec::with_capacity(M);
 
-        for idx in 0..M {
-            random_matrix_data[idx] = Vector::new_random()
+        for _ in 0..M {
+            random_matrix_data.push(Vector::new_random())
         }
 
         Matrix {
-            inner: random_matrix_data,
+            inner: random_matrix_data.into_array(),
         }
     }
+}
 
-    pub fn new_random_boxed() -> Matrix<T, M, N>
-    where
-        T: FromPrimitive + Debug + Copy,
-        Standard: Distribution<T>,
-    {
-        let mut random_matrix_data: [Vector<T, N>; M] =
-            [Vector::new([FromPrimitive::from_u8(0).unwrap(); N]); M];
-
-        for idx in 0..M {
-            random_matrix_data[idx] = Vector::new_random_boxed()
-        }
-
+impl<T, const M: usize, const N: usize> Default for Matrix<T, M, N>
+where
+    T: Default + Clone + FromPrimitive + Copy + Debug,
+{
+    fn default() -> Matrix<T, M, N> {
         Matrix {
-            inner: random_matrix_data,
+            inner: vec![Vector::default(); M].into_2d_vector(),
         }
     }
 }

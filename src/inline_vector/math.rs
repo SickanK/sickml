@@ -1,6 +1,6 @@
 use std::{
     fmt::Debug,
-    ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
+    ops::{Add, AddAssign, Index, Mul, MulAssign, Sub, SubAssign},
 };
 
 use crate::{math_vector::MathVector, matrix::Matrix};

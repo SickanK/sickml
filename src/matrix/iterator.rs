@@ -1,4 +1,7 @@
-use std::{iter::FromIterator, mem::MaybeUninit};
+use std::{
+    iter::FromIterator,
+    mem::{swap, MaybeUninit},
+};
 
 use crate::vector::Vector;
 
@@ -38,7 +41,7 @@ pub struct IntoIter<T, const M: usize, const N: usize> {
 
 impl<T, const M: usize, const N: usize> Iterator for IntoIter<T, M, N>
 where
-    T: Copy,
+    T: Default + Copy,
 {
     type Item = Vector<T, N>;
 
@@ -49,14 +52,17 @@ where
         } else {
             let current = self.current;
             self.current += 1;
-            return Some(self.data.inner[current]);
+
+            let mut current_vector: Vector<T, N> = Vector::default();
+            swap(&mut current_vector, &mut self.data.inner[current]);
+            return Some(current_vector);
         }
     }
 }
 
 impl<'a, T, const M: usize, const N: usize> IntoIterator for Matrix<T, M, N>
 where
-    T: Copy,
+    T: Default + Copy,
 {
     type Item = Vector<T, N>;
     type IntoIter = IntoIter<T, M, N>;

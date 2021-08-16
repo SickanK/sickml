@@ -1,6 +1,8 @@
+use crate::{heap_vector::HeapVector, inline_vector::InlineVector};
+
 use super::Vector;
 
-use std::{iter::FromIterator, mem::MaybeUninit};
+use std::iter::FromIterator;
 impl<'a, T, const N: usize> Vector<T, N> {
     pub fn into_iter(self) -> IntoIter<T, N> {
         IntoIter {
@@ -47,15 +49,10 @@ where
             let current = self.current;
             self.current += 1;
 
-            if let Some(stack_data) = &self.data.stack_data {
-                return Some(stack_data[current]);
+            match &self.data {
+                Vector::Inline(inline_vector) => Some(inline_vector[current]),
+                Vector::Heap(heap_vector) => Some(heap_vector[current]),
             }
-
-            if let Some(heap_data) = &self.data.heap_data {
-                return Some(heap_data[current]);
-            }
-
-            unreachable!()
         }
     }
 }
@@ -111,15 +108,11 @@ where
         } else {
             let current = self.current;
             self.current += 1;
-            if let Some(stack_data) = &self.data.stack_data {
-                return Some(&stack_data[current]);
-            }
 
-            if let Some(heap_data) = &self.data.heap_data {
-                return Some(&heap_data[current]);
+            match self.data {
+                Vector::Inline(inline_vector) => Some(&inline_vector[current]),
+                Vector::Heap(heap_vector) => Some(&heap_vector[current]),
             }
-
-            unreachable!()
         }
     }
 }
@@ -160,52 +153,45 @@ where
             let current = self.current;
             self.current += 1;
 
-            if let Some(stack_data) = &mut self.data.stack_data {
-                let ptr = stack_data.as_mut_ptr();
-                return Some(unsafe { &mut *ptr.add(current) });
+            match self.data {
+                Vector::Inline(inline_vector) => {
+                    let ptr = inline_vector.data.as_mut_ptr();
+                    return Some(unsafe { &mut *ptr.add(current) });
+                }
+                Vector::Heap(heap_vector) => {
+                    let ptr = heap_vector.data.as_mut_ptr();
+                    return Some(unsafe { &mut *ptr.add(current) });
+                }
             }
-
-            if let Some(heap_data) = &mut self.data.heap_data {
-                let ptr = heap_data.as_mut_ptr();
-                return Some(unsafe { &mut *ptr.add(current) });
-            }
-
-            unreachable!()
         }
     }
 }
 
-impl<T, const N: usize> FromIterator<T> for Vector<T, N> {
+impl<T, const N: usize> FromIterator<T> for Vector<T, N>
+where
+    T: Default + Copy,
+{
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Vector<T, N> {
-        let limit = 1500;
+        let limit = 5001;
 
         if N < limit {
-            let mut uninit_collector: [MaybeUninit<T>; N] =
-                unsafe { MaybeUninit::uninit().assume_init() };
+            let mut collector: [T; N] = [T::default(); N];
 
             let mut idx = 0;
             for item in iter {
-                uninit_collector[idx] = MaybeUninit::new(item);
+                collector[idx] = item;
                 idx += 1;
             }
 
-            Vector {
-                stack_data: Some(unsafe { uninit_collector.as_ptr().cast::<[T; N]>().read() }),
-                heap_data: None,
-                stack_limit: limit,
-            }
+            Vector::Inline(InlineVector::new(collector))
         } else {
-            let mut collector: Vec<T> = Vec::new();
+            let mut collector: Vec<T> = Vec::with_capacity(N);
 
             for item in iter {
                 collector.push(item);
             }
 
-            Vector {
-                stack_data: None,
-                heap_data: Some(collector),
-                stack_limit: limit,
-            }
+            Vector::Heap(HeapVector::new(collector))
         }
     }
 }

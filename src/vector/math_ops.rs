@@ -1,3 +1,4 @@
+use crate::math_vector::MathVector;
 use std::{
     fmt::Debug,
     ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign},
@@ -5,11 +6,9 @@ use std::{
 
 use num::{FromPrimitive, ToPrimitive};
 
-use crate::math_vector::MathVector;
+use super::Vector;
 
-use super::HeapVector;
-
-impl<T, const N: usize> Add for HeapVector<T, N>
+impl<T, const N: usize> Add for Vector<T, N>
 where
     T: Default
         + Copy
@@ -26,11 +25,14 @@ where
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self {
-        self.add_vector(rhs)
+        match self {
+            Self::Inline(inline_vector) => Vector::Inline(inline_vector.add_vector(rhs)),
+            Self::Heap(heap_vector) => Vector::Heap(heap_vector.add_vector(rhs)),
+        }
     }
 }
 
-impl<T, const N: usize> AddAssign for HeapVector<T, N>
+impl<T, const N: usize> AddAssign for Vector<T, N>
 where
     T: Default
         + Copy
@@ -45,11 +47,14 @@ where
         + Debug,
 {
     fn add_assign(&mut self, rhs: Self) {
-        self.add_vector_mut(rhs)
+        match self {
+            Self::Inline(inline_vector) => inline_vector.add_vector_mut(rhs),
+            Self::Heap(heap_vector) => heap_vector.add_vector_mut(rhs),
+        }
     }
 }
 
-impl<T, const N: usize> Sub for HeapVector<T, N>
+impl<T, const N: usize> Sub for Vector<T, N>
 where
     T: Default
         + Copy
@@ -66,11 +71,14 @@ where
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self {
-        self.sub_vector(rhs)
+        match self {
+            Self::Inline(inline_vector) => Vector::Inline(inline_vector.sub_vector(rhs)),
+            Self::Heap(heap_vector) => Vector::Heap(heap_vector.add_vector(rhs)),
+        }
     }
 }
 
-impl<T, const N: usize> SubAssign for HeapVector<T, N>
+impl<T, const N: usize> SubAssign for Vector<T, N>
 where
     T: Default
         + Copy
@@ -85,11 +93,14 @@ where
         + Debug,
 {
     fn sub_assign(&mut self, rhs: Self) {
-        self.sub_vector_mut(rhs)
+        match self {
+            Self::Inline(inline_vector) => inline_vector.sub_vector_mut(rhs),
+            Self::Heap(heap_vector) => heap_vector.add_vector_mut(rhs),
+        }
     }
 }
 
-impl<T, const N: usize> Mul for HeapVector<T, N>
+impl<T, const N: usize> Mul for Vector<T, N>
 where
     T: Default
         + Copy
@@ -106,11 +117,14 @@ where
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self {
-        self.entrywise(rhs)
+        match self {
+            Self::Inline(inline_vector) => Vector::Inline(inline_vector.entrywise(rhs)),
+            Self::Heap(heap_vector) => Vector::Heap(heap_vector.entrywise(rhs)),
+        }
     }
 }
 
-impl<T, const N: usize> MulAssign for HeapVector<T, N>
+impl<T, const N: usize> MulAssign for Vector<T, N>
 where
     T: Default
         + Copy
@@ -125,6 +139,9 @@ where
         + Debug,
 {
     fn mul_assign(&mut self, rhs: Self) {
-        self.entrywise_mut(rhs)
+        match self {
+            Self::Inline(inline_vector) => inline_vector.entrywise_mut(rhs),
+            Self::Heap(heap_vector) => heap_vector.entrywise_mut(rhs),
+        }
     }
 }
