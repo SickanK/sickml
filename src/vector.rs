@@ -2,11 +2,13 @@ use std::ops::{Index, IndexMut};
 
 use rand::{distributions::Standard, prelude::Distribution};
 
-use crate::{
+use crate::vector::{
     heap_vector::{into_vec::IntoVec, HeapVector},
     inline_vector::{into_array::IntoArray, InlineVector},
 };
 
+pub mod heap_vector;
+pub mod inline_vector;
 pub mod iterator;
 pub mod math;
 pub mod math_ops;

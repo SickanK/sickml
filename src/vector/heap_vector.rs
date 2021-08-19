@@ -5,6 +5,7 @@ pub mod math_ops;
 
 use self::into_vec::IntoVec;
 use rand::{distributions::Standard, prelude::Distribution, Rng};
+use std::convert::TryInto;
 use std::{
     fmt::Debug,
     ops::{Index, IndexMut},
@@ -57,5 +58,20 @@ impl<T, const N: usize> Index<usize> for HeapVector<T, N> {
 impl<T, const N: usize> IndexMut<usize> for HeapVector<T, N> {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.data[idx]
+    }
+}
+
+impl<T, const N: usize> HeapVector<T, N>
+where
+    T: Clone,
+{
+    pub fn to_vec(self) -> Vec<T> {
+        self.data
+    }
+
+    pub fn to_array(self) -> [T; N] {
+        self.data.try_into().unwrap_or_else(|v: Vec<T>| {
+            panic!("Expected a Vec of length {} but it was {}", N, v.len())
+        })
     }
 }

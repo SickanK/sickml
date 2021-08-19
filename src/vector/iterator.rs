@@ -1,4 +1,4 @@
-use crate::{heap_vector::HeapVector, inline_vector::InlineVector};
+use crate::vector::{heap_vector::HeapVector, inline_vector::InlineVector};
 
 use super::Vector;
 

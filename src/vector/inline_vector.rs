@@ -4,7 +4,7 @@ pub mod iterator;
 pub mod math;
 pub mod math_ops;
 
-use std::ops::{Index, IndexMut};
+use std::ops::{Deref, Index, IndexMut};
 
 use self::into_array::IntoArray;
 use rand::{distributions::Standard, prelude::Distribution, Rng};
@@ -60,5 +60,28 @@ impl<T, const N: usize> Index<usize> for InlineVector<T, N> {
 impl<T, const N: usize> IndexMut<usize> for InlineVector<T, N> {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
         &mut self.data[idx]
+    }
+}
+
+impl<T, const N: usize> InlineVector<T, N>
+where
+    T: Clone,
+{
+    pub fn to_vec(self) -> Vec<T> {
+        self.data.to_vec()
+    }
+}
+
+impl<T, const N: usize> InlineVector<T, N> {
+    pub fn to_array(self) -> [T; N] {
+        self.data
+    }
+}
+
+impl<T, const N: usize> Deref for InlineVector<T, N> {
+    type Target = [T; N];
+
+    fn deref(&self) -> &Self::Target {
+        &self.data
     }
 }

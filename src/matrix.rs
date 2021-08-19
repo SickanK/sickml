@@ -5,7 +5,7 @@ pub mod transpose;
 
 use std::fmt::Debug;
 
-use crate::{inline_vector::into_array::IntoArray, vector::Vector};
+use crate::vector::Vector;
 use into_2d_vector::Into2dVector;
 use num::FromPrimitive;
 use rand::{distributions::Standard, prelude::Distribution};
@@ -34,7 +34,7 @@ impl<T, const M: usize, const N: usize> Matrix<T, M, N> {
         }
 
         Matrix {
-            inner: random_matrix_data.into_array(),
+            inner: random_matrix_data.into_2d_vector(),
         }
     }
 }

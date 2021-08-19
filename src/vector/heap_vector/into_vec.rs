@@ -1,3 +1,5 @@
+use crate::vector::inline_vector::InlineVector;
+
 pub trait IntoVec<T, const N: usize> {
     fn into_vec(self) -> Vec<T>;
 }
@@ -19,5 +21,14 @@ where
         }
 
         converted_vec
+    }
+}
+
+impl<T, const N: usize> IntoVec<T, N> for InlineVector<T, N>
+where
+    T: Copy,
+{
+    fn into_vec(self) -> Vec<T> {
+        self.to_vec()
     }
 }
